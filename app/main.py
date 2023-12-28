@@ -49,7 +49,7 @@ def extract_http_method(request):
 def extract_user_agent(request):
     for line in request.split("\r\n")[0]:
         if "User-Agent:" in line:
-            return line.split("User-Agent: ")[1]
+            return line.split[12:]
 
 
 if __name__ == "__main__":
