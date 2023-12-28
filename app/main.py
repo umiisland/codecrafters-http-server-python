@@ -17,7 +17,6 @@ def main():
 def handle_response(client_connection_socket):
     request_data = client_connection_socket.recv(1024).decode("utf-8")  # receive the data from the client
     path = extract_path(request_data)
-    response_header = ""
 
     if path == "/":
         response_header = "HTTP/1.1 200 OK\r\n\r\n"
