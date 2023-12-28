@@ -21,6 +21,9 @@ def handle_response(client_connection_socket):
     if path == "/":
         response_header = "HTTP/1.1 200 OK\r\n\r\n"
         response_body = "<p>Hello World!</p>"
+    elif "/echo/" in path:
+        response_body = path[6:]
+        response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
     else:
         response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
         response_body = "<p>Page Not Found!</p>"
