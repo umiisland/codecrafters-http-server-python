@@ -23,7 +23,7 @@ def handle_response(client_connection_socket):
         response_header = "HTTP/1.1 200 OK\r\n\r\n"
         response_body = "<p>Hello World!</p>"
     else:
-        response_header = "HTTP/1.1 400 Not Found\r\n\r\n"
+        response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
         response_body = "<p>Page Not Found!</p>"
 
     response = response_header + response_body
