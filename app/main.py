@@ -25,7 +25,7 @@ def handle_response(client_connection_socket):
 
     elif request_method == "GET" and path == "/user-agent":
         response_body = extract_user_agent(request_data)
-        response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n{response_body}\r\n\r\n"
+        response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
 
     elif request_method == "GET" and "/echo/" in path:
         response_body = path[6:]
