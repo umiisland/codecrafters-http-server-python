@@ -17,11 +17,18 @@ def main():
 def handle_response(client_connection_socket):
     request_data = client_connection_socket.recv(1024).decode("utf-8")  # receive the data from the client
     path = extract_path(request_data)
+    request_method = extract_http_method(request_data)
 
-    if path == "/":
+    if request_method == "GET" and path == "/":
         response_header = "HTTP/1.1 200 OK\r\n\r\n"
         response_body = "<p>Hello World!</p>"
-    elif "/echo/" in path:
+    elif request_method == "GET" and path == "/user-agent":
+        try:
+            response_body = extract_user_agent(request_data)
+        except Exception as e:
+            print(e)
+        response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n{response_body}\r\n\r\n"
+    elif request_method == "GET" and "/echo/" in path:
         response_body = path[6:]
         response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
     else:
@@ -36,6 +43,16 @@ def handle_response(client_connection_socket):
 
 def extract_path(request):
     return request.split("\r\n")[0].split(" ")[1]
+
+
+def extract_http_method(request):
+    return request.split("\r\n")[0].split(" ")[0]
+
+
+def extract_user_agent(request):
+    for line in request.split("\r\n")[0]:
+        if "User-Agent:" in line:
+            return line.split("User-Agent: ")[1]
 
 
 if __name__ == "__main__":
