@@ -37,7 +37,7 @@ def run_server(directory=None):
             print(f"Accepted connection from {client_addr}")
             handle_response_thread = Thread(target=handle_response, args=[client_connection_socket, client_addr, directory], daemon=True)
             handle_response_thread.start()
-            print(handle_response_thread.getName())
+            print(handle_response_thread.name)
     except Exception as e:
         print(f"Error: {e}")
     finally:
@@ -111,7 +111,8 @@ def extract_user_agent(request):
 
 if __name__ == "__main__":
     arguments = sys.argv
-    directory = None
-    if len(arguments) == 3 and arguments[1] == "--directory":
+    if len(arguments) >= 3 and arguments[1] == "--directory":
         directory = arguments[2]
+    else:
+        directory = None
     run_server(directory)
