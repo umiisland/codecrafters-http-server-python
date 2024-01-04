@@ -116,7 +116,7 @@ def extract_user_agent(request):
 
 
 def extract_request_body(request):
-    request_sections = request.split("\r\n")
+    request_sections = request.split("\r\n\r\n")
     if len(request_sections) >= 2:
         return request_sections[1]
 
