@@ -79,7 +79,9 @@ def handle_response(client_connection_socket, client_addr, directory):
                     response_body = target_file.read()
                     target_file.close()
                     response_header = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(response_body)}\r\n\r\n"
-
+                else:
+                    response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
+                    response_body = "<p>File Not Found!</p>"
             else:
                 response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
                 response_body = "<p>Page Not Found!</p>"
