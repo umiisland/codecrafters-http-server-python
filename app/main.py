@@ -1,8 +1,10 @@
 from socket import create_server
 from threading import Thread
+from os import path as os_path
+import sys
 
 
-def run_server():
+def run_server(directory=None):
     print("Logs from your program will appear here!")
 
     server_host = "localhost"
@@ -33,7 +35,7 @@ def run_server():
                 otherwise it would be blocked.
             '''
             print(f"Accepted connection from {client_addr}")
-            handle_response_thread = Thread(target=handle_response, args=[client_connection_socket, client_addr], daemon=True)
+            handle_response_thread = Thread(target=handle_response, args=[client_connection_socket, client_addr, directory], daemon=True)
             handle_response_thread.start()
             print(handle_response_thread.getName())
     except Exception as e:
@@ -42,7 +44,7 @@ def run_server():
         server_socket.close()
 
 
-def handle_response(client_connection_socket, client_addr):
+def handle_response(client_connection_socket, client_addr, directory):
     try:
         while True:
             request_data = client_connection_socket.recv(1024).decode("utf-8")
@@ -68,6 +70,15 @@ def handle_response(client_connection_socket, client_addr):
             elif request_method == "GET" and "/echo/" in path:
                 response_body = path[6:]
                 response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
+
+            elif request_method == "GET" and "/files/" in path:
+                file_name = path[7:]
+                is_file_exist = os_path.isfile(directory+file_name)
+                if is_file_exist:
+                    target_file = open(directory+file_name, "r")
+                    response_body = target_file.read()
+                    target_file.close()
+                    response_header = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(response_body)}\r\n\r\n"
 
             else:
                 response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
@@ -98,4 +109,7 @@ def extract_user_agent(request):
 
 
 if __name__ == "__main__":
+    arguments = sys.argv
+    if len(arguments) == 3 and arguments[1] == "--directory":
+        run_server(arguments[2])
     run_server()
