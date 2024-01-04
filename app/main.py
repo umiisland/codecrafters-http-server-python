@@ -111,6 +111,7 @@ def extract_user_agent(request):
 
 if __name__ == "__main__":
     arguments = sys.argv
+    directory = None
     if len(arguments) == 3 and arguments[1] == "--directory":
-        run_server(arguments[2])
-    run_server()
+        directory = arguments[2]
+    run_server(directory)
