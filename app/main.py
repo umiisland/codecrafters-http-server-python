@@ -46,48 +46,47 @@ def run_server(directory=None):
 
 def handle_response(client_connection_socket, client_addr, directory):
     try:
-        while True:
-            request_data = client_connection_socket.recv(1024).decode("utf-8")
-            '''
-                NOTE:
-                The recv() method receives the specified number of bytes from the client. 
-                1024 bytes is just a common convention for the size of the payload, 
-                as it’s a power of two which is potentially better for optimization purposes than some other arbitrary value.
-                
-                decode() is used to transformed the data which is a sequence of bytes received from the client into a string
-            '''
-            path = extract_path(request_data)
-            request_method = extract_http_method(request_data)
+        request_data = client_connection_socket.recv(1024).decode("utf-8")
+        '''
+            NOTE:
+            The recv() method receives the specified number of bytes from the client. 
+            1024 bytes is just a common convention for the size of the payload, 
+            as it’s a power of two which is potentially better for optimization purposes than some other arbitrary value.
+            
+            decode() is used to transformed the data which is a sequence of bytes received from the client into a string
+        '''
+        path = extract_path(request_data)
+        request_method = extract_http_method(request_data)
 
-            if request_method == "GET" and path == "/":
-                response_header = "HTTP/1.1 200 OK\r\n\r\n"
-                response_body = "<p>Hello World!</p>"
+        if request_method == "GET" and path == "/":
+            response_header = "HTTP/1.1 200 OK\r\n\r\n"
+            response_body = "<p>Hello World!</p>"
 
-            elif request_method == "GET" and path == "/user-agent":
-                response_body = extract_user_agent(request_data)
-                response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
+        elif request_method == "GET" and path == "/user-agent":
+            response_body = extract_user_agent(request_data)
+            response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
 
-            elif request_method == "GET" and "/echo/" in path:
-                response_body = path[6:]
-                response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
+        elif request_method == "GET" and "/echo/" in path:
+            response_body = path[6:]
+            response_header = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(response_body)}\r\n\r\n"
 
-            elif request_method == "GET" and "/files/" in path:
-                file_name = path[7:]
-                is_file_exist = os_path.isfile(directory+file_name)
-                if is_file_exist:
-                    with open(directory+file_name, "r") as target_file:
-                        response_body = target_file.read()
-                        response_header = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(response_body)}\r\n\r\n"
-                else:
-                    response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
-                    response_body = "<p>File Not Found!</p>"
+        elif request_method == "GET" and "/files/" in path:
+            file_name = path[7:]
+            is_file_exist = os_path.isfile(directory+file_name)
+            if is_file_exist:
+                with open(directory+file_name, "r") as target_file:
+                    response_body = target_file.read()
+                    response_header = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(response_body)}\r\n\r\n"
             else:
                 response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
-                response_body = "<p>Page Not Found!</p>"
+                response_body = "<p>File Not Found!</p>"
+        else:
+            response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
+            response_body = "<p>Page Not Found!</p>"
 
-            response = response_header + response_body
-            client_connection_socket.sendall(response.encode())  # sending Response to the client
-            print(f"Sent response... \n{response}")
+        response = response_header + response_body
+        client_connection_socket.sendall(response.encode())  # sending Response to the client
+        print(f"Sent response... \n{response}")
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:
