@@ -74,12 +74,19 @@ def handle_response(client_connection_socket, client_addr, directory):
             file_name = path[7:]
             is_file_exist = os_path.isfile(directory+file_name)
             if is_file_exist:
-                with open(directory+file_name, "r") as target_file:
+                with open(os_path.join(directory, file_name), "r") as target_file:
                     response_body = target_file.read()
                     response_header = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(response_body)}\r\n\r\n"
             else:
                 response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
                 response_body = "<p>File Not Found!</p>"
+        elif request_method == "POST" and "/files/" in path and directory:
+            file_name = path[7:]
+            file_contents = extract_request_body(request_data)
+            with open(os_path.join(directory, file_name), 'w') as file_to_write:
+                file_to_write.write(file_contents)
+                response_header = "HTTP/1.1 201 Created\r\n\r\n"
+                response_body = f"File Created at {directory+file_name}"
         else:
             response_header = "HTTP/1.1 404 Not Found\r\n\r\n"
             response_body = "<p>Page Not Found!</p>"
@@ -106,6 +113,12 @@ def extract_user_agent(request):
     for line in request.split("\r\n"):
         if "User-Agent:" in line:
             return line.split("User-Agent: ")[1]
+
+
+def extract_request_body(request):
+    request_sections = request.split("\r\n")
+    if len(request_sections >= 2):
+        return request_sections[1]
 
 
 if __name__ == "__main__":
